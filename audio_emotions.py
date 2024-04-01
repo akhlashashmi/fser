@@ -3,32 +3,44 @@ from audio_recorder_streamlit import audio_recorder
 from audio_utils import *
 from pydub import AudioSegment
 
-col1, col2, col3 = st.columns(3)
+# Function to process audio data and predict emotion
+def process_audio(audio_data):
+    if audio_data:
+        audio_segment = AudioSegment(audio_data, sample_width=2, frame_rate=44100, channels=2)
+        audio_path = "current_recording.wav"
+        audio_segment.export(audio_path, format="wav")
 
-with col1:
-    st.text('')
-with col2:
-    audio_data = audio_recorder('',
-    pause_threshold= 3,
-    neutral_color= "#303030",
-    recording_color = "#de1212",
-    icon_name = "microphone",
-    icon_size = "10x",)
-with col3:
-    st.text('')
+        model = get_model("models/speech_sentiment_analysis.h5")
+        predicted_emotion = predict_emotion(audio_path, model)
+        predicted_label = emotion_labels[predicted_emotion]
 
+        return predicted_label, audio_path
+    return None, None
 
-if audio_data:
-    # st.audio(audio_data, format="audio/wav")
-    audio_segment = AudioSegment(audio_data, sample_width=2, frame_rate=44100, channels=2)
-    audio_segment.export("current_recording.wav", format="wav")
+def main():
+    col1, col2, col3 = st.columns(3)
 
-    model = get_model('models/speech_sentiment_analysis.h5')
-    audio_path = 'current_recording.wav'
+    with col1:
+        st.text("")
 
-    predicted_emotion = predict_emotion(audio_path, model)
-    predicted_label = emotion_labels[predicted_emotion]
+    with col2:
+        audio_data = audio_recorder(
+            "",
+            pause_threshold=3,
+            neutral_color="#303030",
+            recording_color="#de1212",
+            icon_name="microphone",
+            icon_size="10x",
+        )
 
-    st.success(f"Predicted Emotion: {predicted_label}")
-    st.audio(audio_path)  # Play the uploaded audio
+    with col3:
+        st.text("")
 
+    predicted_label, audio_path = process_audio(audio_data)
+
+    if predicted_label is not None and audio_path is not None:
+        st.success(f"Predicted Emotion: {predicted_label}")
+        st.audio(audio_path)  # Play the uploaded audio
+
+if __name__ == "__main__":
+    main()
