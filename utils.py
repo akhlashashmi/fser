@@ -21,17 +21,3 @@ def get_uploaded_file(uploaded_file):
         return file_path
     else:
         return None
-    
-def plot_emotion_probabilities(emotion_probabilities):
-    emotions = list(emotion_probabilities.keys())
-    probabilities = list(emotion_probabilities.values())
-
-    fig, ax = plt.subplots()
-    ax.bar(emotions, probabilities)
-    ax.set_xlabel('Emotion')
-    ax.set_ylabel('Probability')
-    ax.set_title('Detected Emotions')
-    plt.xticks(rotation=45)
-    st.pyplot(fig)
-
-

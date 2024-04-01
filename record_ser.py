@@ -3,7 +3,6 @@ from audio_recorder_streamlit import audio_recorder
 from audio_utils import *
 from pydub import AudioSegment
 
-# Function to process audio data and predict emotion
 def process_audio(audio_data):
     if audio_data:
         audio_segment = AudioSegment(audio_data, sample_width=2, frame_rate=44100, channels=2)

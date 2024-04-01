@@ -1,0 +1,3 @@
+{
+  "python.analysis.extraPaths": ["./facial_emotion_recognition"]
+}
