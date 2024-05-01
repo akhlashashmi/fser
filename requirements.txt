@@ -1,7 +1,9 @@
 opencv-python
+opencv-contrib-python
 streamlit
 numpy
 audio-recorder-streamlit
 pydub
 pillow
+tensorflow
 
