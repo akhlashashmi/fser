@@ -6,9 +6,10 @@ from cv2 import dnn
 from streamlit import write, empty, image
 from st_pages import add_page_title
 
+
 class EmotionDetector:
     def __init__(self):
-        
+
         self.image_mean = np.array([127, 127, 127])
         self.image_std = 128.0
         self.iou_threshold = 0.3
@@ -18,18 +19,18 @@ class EmotionDetector:
             [10.0, 16.0, 24.0],
             [32.0, 48.0],
             [64.0, 96.0],
-            [128.0, 192.0, 256.0]
+            [128.0, 192.0, 256.0],
         ]
         self.strides = [8.0, 16.0, 32.0, 64.0]
         self.threshold = 0.5
         self.emotion_dict = {
-            0: 'neutral',
-            1: 'happiness',
-            2: 'surprise',
-            3: 'sadness',
-            4: 'anger',
-            5: 'disgust',
-            6: 'fear'
+            0: "neutral",
+            1: "happiness",
+            2: "surprise",
+            3: "sadness",
+            4: "anger",
+            5: "disgust",
+            6: "fear",
         }
 
     def define_img_size(self, image_size):
@@ -59,12 +60,7 @@ class EmotionDetector:
                     for min_box in min_boxes[index]:
                         w = min_box / image_size[0]
                         h = min_box / image_size[1]
-                        priors.append([
-                            x_center,
-                            y_center,
-                            w,
-                            h
-                        ])
+                        priors.append([x_center, y_center, w, h])
         print("priors nums:{}".format(len(priors)))
         return np.clip(priors, 0.0, 1.0)
 
@@ -102,7 +98,16 @@ class EmotionDetector:
         area1 = self.area_of(boxes1[..., :2], boxes1[..., 2:])
         return overlap_area / (area0 + area1 - overlap_area + eps)
 
-    def predict(self, width, height, confidences, boxes, prob_threshold, iou_threshold=0.3, top_k=-1):
+    def predict(
+        self,
+        width,
+        height,
+        confidences,
+        boxes,
+        prob_threshold,
+        iou_threshold=0.3,
+        top_k=-1,
+    ):
         boxes = boxes[0]
         confidences = confidences[0]
         picked_box_probs = []
@@ -114,13 +119,12 @@ class EmotionDetector:
             if probs.shape[0] == 0:
                 continue
             subset_boxes = boxes[mask, :]
-            box_probs = np.concatenate(
-                [subset_boxes, probs.reshape(-1, 1)], axis=1
+            box_probs = np.concatenate([subset_boxes, probs.reshape(-1, 1)], axis=1)
+            box_probs = self.hard_nms(
+                box_probs,
+                iou_threshold=iou_threshold,
+                top_k=top_k,
             )
-            box_probs = self.hard_nms(box_probs,
-                                    iou_threshold=iou_threshold,
-                                    top_k=top_k,
-                                    )
             picked_box_probs.append(box_probs)
             picked_labels.extend([class_index] * box_probs.shape[0])
         if not picked_box_probs:
@@ -133,22 +137,30 @@ class EmotionDetector:
         return (
             picked_box_probs[:, :4].astype(np.int32),
             np.array(picked_labels),
-            picked_box_probs[:, 4]
+            picked_box_probs[:, 4],
         )
 
-    def convert_locations_to_boxes(self, locations, priors, center_variance, size_variance):
+    def convert_locations_to_boxes(
+        self, locations, priors, center_variance, size_variance
+    ):
         if len(priors.shape) + 1 == len(locations.shape):
             priors = np.expand_dims(priors, 0)
-        return np.concatenate([
-            locations[..., :2] * center_variance * priors[..., 2:] + priors[..., :2],
-            np.exp(locations[..., 2:] * size_variance) * priors[..., 2:]
-        ], axis=len(locations.shape) - 1)
+        return np.concatenate(
+            [
+                locations[..., :2] * center_variance * priors[..., 2:]
+                + priors[..., :2],
+                np.exp(locations[..., 2:] * size_variance) * priors[..., 2:],
+            ],
+            axis=len(locations.shape) - 1,
+        )
 
     def center_form_to_corner_form(self, locations):
         return np.concatenate(
-            [locations[..., :2] - locations[..., 2:] / 2,
-            locations[..., :2] + locations[..., 2:] / 2],
-            len(locations.shape) - 1
+            [
+                locations[..., :2] - locations[..., 2:] / 2,
+                locations[..., :2] + locations[..., 2:] / 2,
+            ],
+            len(locations.shape) - 1,
         )
 
     def fer_live_cam(self, cap):
@@ -156,14 +168,18 @@ class EmotionDetector:
         video_width = int(cap.get(3))
         video_height = int(cap.get(4))
         video_size = (video_width, video_height)
-        result = cv2.VideoWriter('output\\video_output.mp4', cv2.VideoWriter_fourcc(*'MJPG'), 10, video_size)
+        result = cv2.VideoWriter(
+            "output\\video_output.mp4", cv2.VideoWriter_fourcc(*"MJPG"), 10, video_size
+        )
         image_size = [320, 240]
         width = image_size[0]
         height = image_size[1]
         priors = self.define_img_size(image_size)
 
-        model = dnn.readNetFromONNX('models\\emotion-ferplus-12-int8.onnx')
-        net = dnn.readNetFromCaffe('models\\RFB-320\\RFB-320.prototxt', 'models\\RFB-320\\RFB-320.caffemodel')
+        model = dnn.readNetFromONNX("models\\emotion-ferplus-12-int8.onnx")
+        net = dnn.readNetFromCaffe(
+            "models\\RFB-320\\RFB-320.prototxt", "models\\RFB-320\\RFB-320.caffemodel"
+        )
 
         while cap.isOpened():
             ret, frame = cap.read()
@@ -171,7 +187,9 @@ class EmotionDetector:
                 img_ori = frame
                 rect = cv2.resize(img_ori, (width, height))
                 rect = cv2.cvtColor(rect, cv2.COLOR_BGR2RGB)
-                net.setInput(dnn.blobFromImage(rect, 1 / self.image_std, (width, height), 127))
+                net.setInput(
+                    dnn.blobFromImage(rect, 1 / self.image_std, (width, height), 127)
+                )
                 start_time = time.time()
                 boxes, scores = net.forward(["boxes", "scores"])
                 boxes = np.expand_dims(np.reshape(boxes, (-1, 4)), axis=0)
@@ -181,20 +199,14 @@ class EmotionDetector:
                 )
                 boxes = self.center_form_to_corner_form(boxes)
                 boxes, labels, probs = self.predict(
-                    img_ori.shape[1],
-                    img_ori.shape[0],
-                    scores,
-                    boxes,
-                    self.threshold
+                    img_ori.shape[1], img_ori.shape[0], scores, boxes, self.threshold
                 )
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                for (x1, y1, x2, y2) in boxes:
+                for x1, y1, x2, y2 in boxes:
                     w = x2 - x1
                     h = y2 - y1
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
-                    resize_frame = cv2.resize(
-                        gray[y1:y1 + h, x1:x1 + w], (64, 64)
-                    )
+                    resize_frame = cv2.resize(gray[y1 : y1 + h, x1 : x1 + w], (64, 64))
                     resize_frame = resize_frame.reshape(1, 1, 64, 64)
                     model.setInput(resize_frame)
                     output = model.forward()
@@ -218,12 +230,12 @@ class EmotionDetector:
                         0.8,
                         (215, 5, 247),
                         2,
-                        lineType=cv2.LINE_AA
+                        lineType=cv2.LINE_AA,
                     )
                     result.write(frame)
 
                 placeholder.image(frame, channels="BGR", use_column_width=True)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
+                if cv2.waitKey(1) & 0xFF == ord("q"):
                     break
             else:
                 break

@@ -1,12 +1,16 @@
 import cv2
 import streamlit as st
+
 # from st_pages import add_page_title
 from facial_emotion_recognition import EmotionDetector
 from utils import get_uploaded_file
 
+
 def facial_expresion_recognition():
     st.title("Facial Emotion Recognition")
-    file = st.file_uploader("Pick a video", type=["mp4", "mov", "avi", "mkv"])
+    file = st.file_uploader(
+        "Pick a video (MP4, MOV, MKV, AVI)", type=["mp4", "mov", "avi", "mkv"]
+    )
     if file is not None:
         file_path = get_uploaded_file(file)
         detector = EmotionDetector()
@@ -15,4 +19,3 @@ def facial_expresion_recognition():
 
 if __name__ == "__main__":
     facial_expresion_recognition()
-

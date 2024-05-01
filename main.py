@@ -7,18 +7,25 @@
 
 
 import cv2
+import streamlit as st
 from st_pages import Page, Section, show_pages
+
+facial_emotion_detection = "fer_live.py"
+facial_emotion_detection_file = "fer_file.py"
+image_emotions_recognition = "image_emotions_recognition.py"
+speech_emotion_detection = "ser.py"
+speech_emotion_detection_record = "record_ser.py"
 
 def main():
     show_pages(
         [
             Section("Facial Emotion Detection"),
-            Page("fer_live.py", "📷  Live Video"),
-            Page("fer_file.py", "🗃️  Video File"),
-            Page("image_emotions.py", "🌌  Image File"),
+            Page(facial_emotion_detection, "📷  Live Video"),
+            Page(facial_emotion_detection_file, "🗃️  Video File"),
+            Page(image_emotions_recognition, "🌌  Image File"),
             Section("Speech Emotion Detection"),
-            Page("ser.py", "🎵  Audio File"),
-            Page("record_ser.py", "🎙️  Record Audio"),
+            Page(speech_emotion_detection, "🎵  Audio File"),
+            Page(speech_emotion_detection_record, "🎙️  Record Audio"),
         ]
     )
 

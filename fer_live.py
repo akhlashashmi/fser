@@ -1,7 +1,8 @@
 import cv2
 import streamlit as st
 from facial_emotion_recognition import EmotionDetector
- 
+
+
 def live_facial_expresion_recognition():
     st.title("Facial Emotion Recognition")
     detector = EmotionDetector()

@@ -9,7 +9,7 @@ def process_audio(audio_data):
         audio_path = "current_recording.wav"
         audio_segment.export(audio_path, format="wav")
 
-        model = get_model("models/speech_sentiment_analysis.h5")
+        model = get_model('models/speech_sentiment_analysis.h5')
         predicted_emotion = predict_emotion(audio_path, model)
         predicted_label = emotion_labels[predicted_emotion]
 
@@ -17,10 +17,12 @@ def process_audio(audio_data):
     return None, None
 
 def main():
-    col1, col2, col3 = st.columns(3)
+    st.title("Speech Emotion Recognition")
 
-    with col1:
-        st.text("")
+    # Giving Some Horizontal Spacing
+    st.markdown("#")
+
+    _, col2, _ = st.columns(3)
 
     with col2:
         audio_data = audio_recorder(
@@ -32,12 +34,12 @@ def main():
             icon_size="10x",
         )
 
-    with col3:
-        st.text("")
+    space = st.empty()
 
     predicted_label, audio_path = process_audio(audio_data)
 
     if predicted_label is not None and audio_path is not None:
+        space = st.markdown("#")
         st.success(f"Predicted Emotion: {predicted_label}")
         st.audio(audio_path)  # Play the uploaded audio
 
