@@ -1,6 +1,5 @@
 from tempfile import NamedTemporaryFile
 import streamlit as st
-import matplotlib.pyplot as plt
 import librosa
 import numpy as np
 

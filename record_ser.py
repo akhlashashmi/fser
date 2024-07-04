@@ -22,10 +22,19 @@ def main():
     # Giving Some Horizontal Spacing
     st.markdown("#")
 
-    _, col2, _ = st.columns(3)
+    # _, col2, _ = st.columns(3)
 
-    with col2:
-        audio_data = audio_recorder(
+    # with col2:
+    #     audio_data = audio_recorder(
+    #         "",
+    #         pause_threshold=3,
+    #         neutral_color="#303030",
+    #         recording_color="#de1212",
+    #         icon_name="microphone",
+    #         icon_size="10x",
+    #     )
+
+    audio_data = audio_recorder(
             "",
             pause_threshold=3,
             neutral_color="#303030",
