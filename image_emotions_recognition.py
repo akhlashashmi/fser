@@ -219,11 +219,14 @@ class EmotionDetector:
             mime="image/png"
         )
 
-if __name__ == "__main__":
-    st.title("Facial Emotion Recognition")
-    # image_path = "C:\\Users\\akhla\\Downloads\\multiple_emotions.jpg"
-    image_file = st.file_uploader("Choose an image file (JPG, PNG, JPEG)", type=["jpg", "png", "jpeg"])
-    if image_file is not None:
-        image_file = get_uploaded_file(image_file)
-        detector = EmotionDetector()
-        detector.detect_emotion(image_file)
+# if __name__ == "__main__":
+
+st.title("Facial Emotion Recognition")
+# image_path = "C:\\Users\\akhla\\Downloads\\multiple_emotions.jpg"
+image_file = st.file_uploader("Choose an image file (JPG, PNG, JPEG)", type=["jpg", "png", "jpeg"])
+print(type(image_file))
+print(image_file.name)
+if image_file is not None:
+    image_file = get_uploaded_file(image_file)
+    detector = EmotionDetector()
+    detector.detect_emotion(image_file)

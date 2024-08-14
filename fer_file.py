@@ -17,5 +17,5 @@ def facial_expresion_recognition():
         detector.fer_live_cam(cv2.VideoCapture(file_path))
 
 
-if __name__ == "__main__":
-    facial_expresion_recognition()
+# if __name__ == "__main__":
+facial_expresion_recognition()

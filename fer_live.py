@@ -9,5 +9,5 @@ def live_facial_expresion_recognition():
     detector.fer_live_cam(cv2.VideoCapture(0))
 
 
-if __name__ == "__main__":
-    live_facial_expresion_recognition()
+# if __name__ == "__main__":
+live_facial_expresion_recognition()

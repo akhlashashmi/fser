@@ -52,5 +52,5 @@ def main():
         st.success(f"Predicted Emotion: {predicted_label}")
         st.audio(audio_path)  # Play the uploaded audio
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+main()

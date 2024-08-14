@@ -21,5 +21,5 @@ def main():
         st.audio(audio_path)  # Play the uploaded audio
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+main()

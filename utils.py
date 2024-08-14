@@ -1,6 +1,5 @@
 from tempfile import NamedTemporaryFile
 import streamlit as st
-import librosa
 import numpy as np
 
 def get_uploaded_file(uploaded_file):
@@ -16,7 +15,7 @@ def get_uploaded_file(uploaded_file):
 
         # Get the file path of the temporary file
         file_path = temp_file.name
-
+            
         return file_path
     else:
         return None
