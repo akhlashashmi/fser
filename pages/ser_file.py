@@ -25,8 +25,8 @@ def build_ui():
         # Process the recorded audio data
         audio_path = process_audio_data(audio_data)
 
-        # Empty space
-        markdown('#')
+        # # Empty space
+        # markdown('#')
 
         # Display a placeholder while processing
         with info_:
