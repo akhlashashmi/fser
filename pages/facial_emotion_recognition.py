@@ -3,8 +3,8 @@ import cv2
 import time
 from math import ceil
 from cv2 import dnn
-from streamlit import write, empty, image
-from st_pages import add_page_title
+from streamlit import empty
+from models.model_names import Models
 
 
 class EmotionDetector:
@@ -169,16 +169,16 @@ class EmotionDetector:
         video_height = int(cap.get(4))
         video_size = (video_width, video_height)
         result = cv2.VideoWriter(
-            "output\\video_output.mp4", cv2.VideoWriter_fourcc(*"MJPG"), 10, video_size
+            "output/video_output.mp4", cv2.VideoWriter_fourcc(*"MJPG"), 10, video_size
         )
         image_size = [320, 240]
         width = image_size[0]
         height = image_size[1]
         priors = self.define_img_size(image_size)
 
-        model = dnn.readNetFromONNX("models\\emotion-ferplus-12-int8.onnx")
+        model = dnn.readNetFromONNX(Models.fer_plus)
         net = dnn.readNetFromCaffe(
-            "models\\RFB-320\\RFB-320.prototxt", "models\\RFB-320\\RFB-320.caffemodel"
+            Models.fd_txt, Models.fd_caffe
         )
 
         while cap.isOpened():
@@ -187,9 +187,7 @@ class EmotionDetector:
                 img_ori = frame
                 rect = cv2.resize(img_ori, (width, height))
                 rect = cv2.cvtColor(rect, cv2.COLOR_BGR2RGB)
-                net.setInput(
-                    dnn.blobFromImage(rect, 1 / self.image_std, (width, height), 127)
-                )
+                net.setInput( dnn.blobFromImage(rect, 1 / self.image_std, (width, height), 127))
                 start_time = time.time()
                 boxes, scores = net.forward(["boxes", "scores"])
                 boxes = np.expand_dims(np.reshape(boxes, (-1, 4)), axis=0)
@@ -214,6 +212,7 @@ class EmotionDetector:
                     fps = 1 / (end_time - start_time)
                     print(f"FPS: {fps:.1f}")
                     pred = self.emotion_dict[list(output[0]).index(max(output[0]))]
+                    print(pred)
                     cv2.rectangle(
                         img_ori,
                         (x1, y1),

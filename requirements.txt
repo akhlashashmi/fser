@@ -1,7 +1,6 @@
 opencv-python
 opencv-contrib-python
 streamlit
-st-pages
 librosa
 numpy
 audio-recorder-streamlit

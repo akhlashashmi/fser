@@ -6,10 +6,10 @@ from pydub import AudioSegment
 def process_audio(audio_data):
     if audio_data:
         audio_segment = AudioSegment(audio_data, sample_width=2, frame_rate=44100, channels=2)
-        audio_path = "current_recording.wav"
+        audio_path = "../current_recording.wav"
         audio_segment.export(audio_path, format="wav")
 
-        model = get_model('models/speech_sentiment_analysis.h5')
+        model = get_model('../models/speech_sentiment_analysis.h5')
         predicted_emotion = predict_emotion(audio_path, model)
         predicted_label = emotion_labels[predicted_emotion]
 

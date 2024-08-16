@@ -1,9 +1,10 @@
 import streamlit as st
 from audio_utils import *
+from models.model_names import Models
 from utils import get_uploaded_file
 
 
-def main():
+def build_ui():
     st.title("Speech Emotion Recognition")
 
     uploaded_file = st.file_uploader(
@@ -12,7 +13,7 @@ def main():
 
     if uploaded_file is not None:
         audio_path = get_uploaded_file(uploaded_file)
-        model = get_model("models/speech_sentiment_analysis.h5")
+        model = get_model(Models.ser)
 
         predicted_emotion = predict_emotion(audio_path, model)
         predicted_label = emotion_labels[predicted_emotion]
@@ -21,5 +22,4 @@ def main():
         st.audio(audio_path)  # Play the uploaded audio
 
 
-# if __name__ == "__main__":
-main()
+build_ui()
