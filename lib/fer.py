@@ -5,7 +5,10 @@ from PIL import Image
 import streamlit as st
 import io
 from models.model_names import Models
+from collections import Counter
 
+# Global variable to store predicted emotions for each frame
+predicted_emotions = []
 
 class FacialEmotionDetection:
     def __init__(self):
@@ -35,6 +38,8 @@ class FacialEmotionDetection:
         self.priors = self.define_img_size(self.image_size)
         self.model = cv2.dnn.readNetFromONNX(Models.fer_plus)
         self.net = cv2.dnn.readNetFromCaffe(Models.fd_txt, Models.fd_caffe)
+        global predicted_emotions
+        predicted_emotions.clear()
 
     def define_img_size(self, image_size):
         shrinkage_list = []
@@ -155,6 +160,7 @@ class FacialEmotionDetection:
         )
 
     def detect_emotion_in_video_frame(self, frame):
+        global predicted_emotions
         img_ori = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         rect = cv2.resize(img_ori, (self.image_size[0], self.image_size[1]))
         self.net.setInput(
@@ -174,6 +180,7 @@ class FacialEmotionDetection:
             self.threshold
         )
         gray = cv2.cvtColor(img_ori, cv2.COLOR_RGB2GRAY)
+        frame_emotions = []
         for (x1, y1, x2, y2) in boxes:
             w = x2 - x1
             h = y2 - y1
@@ -184,6 +191,7 @@ class FacialEmotionDetection:
             self.model.setInput(resize_frame)
             output = self.model.forward()
             pred = self.emotion_dict[list(output[0]).index(max(output[0]))]
+            frame_emotions.append(pred)
             cv2.rectangle(
                 img_ori,
                 (x1, y1),
@@ -201,6 +209,17 @@ class FacialEmotionDetection:
                 2,
                 lineType=cv2.LINE_AA
             )
+
+        # Store the emotions detected in this frame
+        predicted_emotions.append(frame_emotions)
+
+        # Aggregate the emotions up to the current frame
+        all_emotions = [emotion for frame in predicted_emotions for emotion in frame]
+        emotion_counts = Counter(all_emotions)
+
+        # Print the aggregated emotions
+        print(f"Aggregated emotions after this frame: {dict(emotion_counts)}")
+
         return cv2.cvtColor(img_ori, cv2.COLOR_RGB2BGR)
 
     def detect_emotion_in_image(self, image):
@@ -265,3 +284,7 @@ class FacialEmotionDetection:
             file_name="emotion_detected_image.png",
             mime="image/png"
         )
+
+# Example of how you might use the predicted_emotions list after processing
+# for later:
+# aggregate_emotions(predicted_emotions)

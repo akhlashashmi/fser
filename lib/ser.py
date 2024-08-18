@@ -2,7 +2,7 @@ import numpy as np
 import librosa
 from streamlit import cache_resource
 
-from lib.utils import load_model
+from lib.audio_utils import load_model
 from models.model_names import Models
 
 # Define your emotion labels

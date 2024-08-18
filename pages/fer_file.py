@@ -1,10 +1,10 @@
 import cv2
 from streamlit import title, empty, file_uploader
-from lib.utils import get_uploaded_file
 from lib.fer import FacialEmotionDetection
+from lib.utils import get_uploaded_file
 
 
-def process_video(file_path):
+def process_video(file_path) -> None:
     detector = FacialEmotionDetection()
     cap = cv2.VideoCapture(file_path)
 

@@ -1,11 +1,10 @@
 from audio_recorder_streamlit import audio_recorder
 from streamlit import empty, write, success, audio, title, markdown
-
 from lib.ser import get_model
-from lib.utils import process_audio_data
+from lib.audio_utils import process_audio_data
 
 
-def build_ui():
+def build_ui() -> None:
     title("Speech Emotion Recognition (Record)")
 
     # Audio recorder component in Streamlit

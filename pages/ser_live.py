@@ -1,10 +1,9 @@
 import streamlit as st
-
 from lib.ser import get_model
 from lib.utils import get_uploaded_file
 
 
-def build_ui():
+def build_ui() -> None:
     st.title("Speech Emotion Recognition (Upload)")
 
     uploaded_file = st.file_uploader("Upload an audio file (WAV or MP3)", type=["wav", "mp3"])
@@ -25,5 +24,4 @@ def build_ui():
             st.error('Failed to predict emotion')
 
 
-# Call build_ui at the end
 build_ui()
