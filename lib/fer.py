@@ -6,6 +6,7 @@ import streamlit as st
 import io
 from models.model_names import Models
 from collections import Counter
+from state.emotion_state import emotion_state
 
 # Global variable to store predicted emotions for each frame
 predicted_emotions = []
@@ -163,15 +164,20 @@ class FacialEmotionDetection:
         global predicted_emotions
         img_ori = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         rect = cv2.resize(img_ori, (self.image_size[0], self.image_size[1]))
+
         self.net.setInput(
-            cv2.dnn.blobFromImage(rect, 1 / self.image_std, (self.image_size[0], self.image_size[1]), 127))
+            cv2.dnn.blobFromImage(rect, 1 / self.image_std, (self.image_size[0], self.image_size[1]), 127)
+        )
+
         boxes, scores = self.net.forward(["boxes", "scores"])
         boxes = np.expand_dims(np.reshape(boxes, (-1, 4)), axis=0)
         scores = np.expand_dims(np.reshape(scores, (-1, 2)), axis=0)
+
         boxes = self.convert_locations_to_boxes(
             boxes, self.priors, self.center_variance, self.size_variance
         )
         boxes = self.center_form_to_corner_form(boxes)
+
         boxes, labels, probs = self.predict(
             img_ori.shape[1],
             img_ori.shape[0],
@@ -179,26 +185,36 @@ class FacialEmotionDetection:
             boxes,
             self.threshold
         )
+
         gray = cv2.cvtColor(img_ori, cv2.COLOR_RGB2GRAY)
         frame_emotions = []
+
         for (x1, y1, x2, y2) in boxes:
+            # Ensure the bounding box is within the image bounds
+            if x1 < 0 or y1 < 0 or x2 > img_ori.shape[1] or y2 > img_ori.shape[0]:
+                continue  # Skip this box if it's out of bounds
+
             w = x2 - x1
             h = y2 - y1
-            resize_frame = cv2.resize(
-                gray[y1:y1 + h, x1:x1 + w], (64, 64)
-            )
+
+            # Ensure the width and height are valid
+            if w <= 0 or h <= 0:
+                continue  # Skip invalid bounding boxes
+
+            # Ensure the ROI is within bounds
+            roi_gray = gray[y1:y1 + h, x1:x1 + w]
+            if roi_gray.size == 0:
+                continue  # Skip empty ROIs
+
+            resize_frame = cv2.resize(roi_gray, (64, 64))
             resize_frame = resize_frame.reshape(1, 1, 64, 64)
+
             self.model.setInput(resize_frame)
             output = self.model.forward()
             pred = self.emotion_dict[list(output[0]).index(max(output[0]))]
             frame_emotions.append(pred)
-            cv2.rectangle(
-                img_ori,
-                (x1, y1),
-                (x2, y2),
-                (0, 215, 0),
-                1,
-            )
+
+            cv2.rectangle(img_ori, (x1, y1), (x2, y2), (0, 215, 0), 1)
             cv2.putText(
                 img_ori,
                 pred,
@@ -215,10 +231,11 @@ class FacialEmotionDetection:
 
         # Aggregate the emotions up to the current frame
         all_emotions = [emotion for frame in predicted_emotions for emotion in frame]
-        emotion_counts = Counter(all_emotions)
+
+        emotion_state.update(dict(Counter(all_emotions)))
 
         # Print the aggregated emotions
-        print(f"Aggregated emotions after this frame: {dict(emotion_counts)}")
+        print(f"Aggregated emotions after this frame: {emotion_state.get()}")
 
         return cv2.cvtColor(img_ori, cv2.COLOR_RGB2BGR)
 
@@ -285,6 +302,3 @@ class FacialEmotionDetection:
             mime="image/png"
         )
 
-# Example of how you might use the predicted_emotions list after processing
-# for later:
-# aggregate_emotions(predicted_emotions)
